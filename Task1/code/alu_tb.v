@@ -1,0 +1,66 @@
+`timescale 1ns/1ps
+
+module ALU_tb;
+
+reg  [31:0] A;
+reg  [31:0] B;
+reg  [2:0]  ALU_ctrl;
+wire [31:0] Result;
+wire Zero;
+
+ALU uut (
+    .A(A),
+    .B(B),
+    .ALU_ctrl(ALU_ctrl),
+    .Result(Result),
+    .Zero(Zero)
+);
+
+initial begin
+    A = 32'd10;
+    B = 32'd5;
+
+    ALU_ctrl = 3'b000; #10;
+    ALU_ctrl = 3'b001; #10;
+    ALU_ctrl = 3'b010; #10;
+    ALU_ctrl = 3'b011; #10;
+    ALU_ctrl = 3'b100; #10;
+    ALU_ctrl = 3'b101; #10;
+    ALU_ctrl = 3'b110; #10;
+    ALU_ctrl = 3'b111; #10;
+
+    $finish;
+end
+
+initial begin
+    $monitor("Time=%0t A=%d B=%d ALU_ctrl=%b Result=%d Zero=%b",
+              $time, A, B, ALU_ctrl, Result, Zero);
+end
+
+endmodule
+
+module ALU (
+    input  [31:0] A,
+    input  [31:0] B,
+    input  [2:0]  ALU_ctrl,
+    output reg [31:0] Result,
+    output Zero
+);
+
+always @(*) begin
+    case (ALU_ctrl)
+        3'b000: Result = A + B;
+        3'b001: Result = A - B;
+        3'b010: Result = A & B;
+        3'b011: Result = A | B;
+        3'b100: Result = A ^ B;
+        3'b101: Result = A << B[4:0];
+        3'b110: Result = A >> B[4:0];
+        3'b111: Result = (A < B) ? 32'd1 : 32'd0;
+        default: Result = 32'd0;
+    endcase
+end
+
+assign Zero = (Result == 32'd0);
+
+endmodule
