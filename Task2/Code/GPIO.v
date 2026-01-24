@@ -4,30 +4,28 @@ module GPIO (
     input  we,
     input  re,
     input  [31:0] data_in,
-    output [31:0] data_out,
-    output [31:0] gpio_out
+    output reg [31:0] data_out,
+    output reg [31:0] gpio_out
 );
-  reg [31:0] data;
-  
+
+  reg [31:0] data1;
+
   always @(posedge clk) begin
     if (reset) begin
-      data <= 32'b0;
-    end else if (we) begin
-      data <= data_in;
+      data1    <= 32'b0;
+      data_out <= 32'b0;
+      gpio_out <= 32'b0;
+    end else begin
+      if (we)
+        data1 <= data_in;
+
+      if (re)
+        data_out <= data1;
+      else
+        data_out <= 32'b0;
+
+      gpio_out <= data1;
     end
   end
-  
-  always @(posedge clk) begin
-    if (re)
-      data_out = data;
-    else
-      data_out = 32'b0;
-  end
-  
-  always @(posedge clk) begin
-    if (reset)
-      gpio_out <= 32'b0;
-    else
-      gpio_out <= data;
-  end
+
 endmodule
